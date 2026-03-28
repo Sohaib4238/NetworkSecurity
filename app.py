@@ -7,7 +7,6 @@ ca = certifi.where()
 from dotenv import load_dotenv
 load_dotenv()   
 mongo_db_url = os.getenv("MONGODB_URL_KEY")
-print(mongo_db_url)
 
 import pymongo
 from networksecurity.exception.exception import NetworkSecurityException
@@ -33,13 +32,17 @@ database = client[DATA_INGESTION_DATABASE_NAME]
 collection = database[DATA_INGESTION_COLLECTION_NAME]
 
 app = FastAPI()
-origins = ["*"]
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:3000",
+]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -62,6 +65,9 @@ async def train_route():
 @app.post("/predict")
 async def predict_route(request: Request,file: UploadFile = File(...)):
     try:
+        if not file.filename.endswith(".csv"):
+            return Response("Error: Only .csv files are permitted.", status_code=400)
+            
         df=pd.read_csv(file.file)
         #print(df)
         preprocesor=load_object("final_model/preprocessor.pkl")
