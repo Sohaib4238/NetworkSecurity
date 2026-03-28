@@ -6,6 +6,10 @@ certifi
 pymongo[srv]==4.2.0
 scikit-learn
 mlflow
+dagshub
 pyaml
+fastapi
+uvicorn
+
 
 ##-e .
